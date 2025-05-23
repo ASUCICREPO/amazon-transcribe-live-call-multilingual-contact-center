@@ -44,6 +44,8 @@ import { exportToExcel } from '../common/download-func';
 import useAppContext from '../../contexts/app';
 import awsExports from '../../aws-exports';
 
+import AgentResponseBox from './AgentResponseBox';
+
 const logger = new Logger('CallPanel');
 
 // comprehend PII types
@@ -151,7 +153,12 @@ const CallAttributes = ({ item, setToolsOpen }) => (
     header={
       <Header variant="h4" info={<InfoLink onFollow={() => setToolsOpen(true)} />}>
         <div className="flex items-center">
-          <div>Call Attributes</div>
+          <div>
+            <Box margin={{ bottom: 'xxxs' }} color="text-label">
+              <strong>Call ID</strong>
+            </Box>
+            <div>{item.callId}</div>
+          </div>
           <div className="btn-download-right">
             <Button
               iconName="download"
@@ -164,15 +171,6 @@ const CallAttributes = ({ item, setToolsOpen }) => (
     }
   >
     <ColumnLayout columns={6} borders="vertical">
-      <SpaceBetween size="xs">
-        <div>
-          <Box margin={{ bottom: 'xxxs' }} color="text-label">
-            <strong>Call ID</strong>
-          </Box>
-          <div>{item.callId}</div>
-        </div>
-      </SpaceBetween>
-
       <SpaceBetween size="xs">
         <div>
           <Box margin={{ bottom: 'xxxs' }} color="text-label">
@@ -918,6 +916,8 @@ const CallTranscriptContainer = ({
   callTranscriptPerCallId,
   translateClient,
   collapseSentiment,
+  targetLanguage,
+  onTargetLanguageChange,
 }) => {
   // defaults to auto scroll when call is in progress
   const [autoScroll, setAutoScroll] = useState(item.recordingStatusLabel === IN_PROGRESS_STATUS);
@@ -926,14 +926,10 @@ const CallTranscriptContainer = ({
   );
 
   const [translateOn, setTranslateOn] = useState(false);
-  const [targetLanguage, setTargetLanguage] = useState(
-    localStorage.getItem('targetLanguage') || '',
-  );
   const [agentTranscript, setAgentTranscript] = useState(true);
 
   const handleLanguageSelect = (event) => {
-    setTargetLanguage(event.target.value);
-    localStorage.setItem('targetLanguage', event.target.value);
+    onTargetLanguageChange(event.target.value);
   };
 
   useEffect(() => {
@@ -944,17 +940,21 @@ const CallTranscriptContainer = ({
   const languageChoices = () => {
     if (translateOn) {
       return (
-        // prettier-ignore
         // eslint-disable-jsx-a11y/control-has-associated-label
         <div>
           <select value={targetLanguage} onChange={handleLanguageSelect}>
-            {languageCodes.map(({ value, label }) => <option value={value}>{label}</option>)}
+            {languageCodes.map(({ value, label }) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
           </select>
         </div>
       );
     }
     return translateOn;
   };
+
   return (
     <Grid
       gridDefinition={[
@@ -1175,11 +1175,15 @@ const CallStatsContainer = ({
   </Container>
 );
 
-export const CallPanel = ({ item, callTranscriptPerCallId, setToolsOpen }) => {
-  const { currentCredentials } = useAppContext();
+export const CallPanel = ({ item, callTranscriptPerCallId, setToolsOpen, activeCallContact }) => {
+  const { currentCredentials, currentContact, contactId, customerLanguage } = useAppContext();
 
   const { settings } = useSettingsContext();
   const [collapseSentiment, setCollapseSentiment] = useState(false);
+
+  const [targetLanguage, setTargetLanguage] = useState(
+    localStorage.getItem('targetLanguage') || '',
+  );
 
   const enableVoiceTone = settings?.EnableVoiceToneAnalysis === 'true';
 
@@ -1202,7 +1206,7 @@ export const CallPanel = ({ item, callTranscriptPerCallId, setToolsOpen }) => {
   });
 
   /* Get a client with refreshed credentials. Credentials can go stale when user is logged in
-     for an extended period.
+    for an extended period.
    */
   useEffect(() => {
     logger.debug('Translate client with refreshed credentials');
@@ -1213,6 +1217,12 @@ export const CallPanel = ({ item, callTranscriptPerCallId, setToolsOpen }) => {
       retryStrategy: customRetryStrategy,
     });
   }, [currentCredentials]);
+
+  // Handler for changing target language, to be passed to CallTranscriptContainer
+  const handleTargetLanguageChange = (selectedLanguage) => {
+    setTargetLanguage(selectedLanguage);
+    localStorage.setItem('targetLanguage', selectedLanguage);
+  };
 
   return (
     <SpaceBetween size="s">
@@ -1251,6 +1261,13 @@ export const CallPanel = ({ item, callTranscriptPerCallId, setToolsOpen }) => {
         callTranscriptPerCallId={callTranscriptPerCallId}
         translateClient={translateClient}
         collapseSentiment={collapseSentiment}
+        targetLanguage={targetLanguage}
+        onTargetLanguageChange={handleTargetLanguageChange}
+      />
+      <AgentResponseBox
+        currentContact={currentContact}
+        contactId={contactId}
+        currentLanguage={customerLanguage}
       />
     </SpaceBetween>
   );

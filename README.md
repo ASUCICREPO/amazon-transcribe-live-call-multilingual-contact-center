@@ -1,3 +1,129 @@
+# Amazon Transcribe Live Call Analytics (LCA) with Multilingual Contact Center
+
+This is an add on function for the Amazon Transcribe Live Call Analytics (LCA) solution. It is a multilingual contact center solution that helps call centres overcome language barriers between call center agents and customers. Using AWS services like Amazon Connect, Amazon Transcribe, Amazon Translate, and Amazon Polly, this solution provides near real-time translation capabilities, allowing agents to effectively communicate with customers who speak different languages.
+
+## Description:-
+
+This solution provides near real-time translation chat support through Amazon Connect, Amazon Transcribe, and serverless code through AWS Lambda. Translations that would take hours to complete manually are performed in moments and read back, in life-like speech, and in a member’s chosen language through Amazon Polly. This solution is designed to be a cost-effective, scalable, and secure solution for organizations that need to provide multilingual support to their customers.
+
+
+
+## Backend :
+-> The LCA stack needs to be deployed first using the documentation provided below in the "Amazon Transcribe Live Call Analytics (LCA) with Agent Assist Sample Solution" section. 
+
+-see [Amazon Connect Integration README](/lca-connect-integration-stack/README.md) for details for connecting the Amazon Connect to the LCA stack. After publishing your contact flow as per the Amazon Connect Integration README, you can proceed to the next step.
+
+-> For deploying the backend for live call translation, we need to follow the steps as provided in this blog: [Building a multilingual contact center](https://aws.amazon.com/blogs/publicsector/building-a-multilingual-contact-center-for-medicaid-agencies-on-aws/)
+
+- After the Backend is deployed as per the instructions of the Building a multilingual contact center blog, you cal see the contact flow for the live call translation.
+
+- After the backend is deployed, we need to add the edit the contact flow for the live call translation, you can follow below section for that.
+
+-> we need to edit the lambda function for adding realtime graphQl updates to the call details page. The code for lambda function is present in the Assets/Lambda-mlcc-edited/ mlcc-Transcribe-Polly.py file.
+    - for graphQl schema we need to edit it by going to appsync console and then going to the schema section of graphQl API and then editing the schema by referencing the file present in the Assets/schema-graph-ql/schema.graphql file.
+    - Lambda layer with gql is needed to be connected to this lambda function. The layer can be created using aws cdk is present in the Backend-layer/CIC-multi-lambda-v5 folder.
+
+
+### New Connect Flow implementation:
+For the Multilingual Contact Center addition, we need to edit the contact flow for the LCA. The new contact flow can be created by using the following steps:
+
+1. Open the Amazon Connect console.
+2. Navigate to the "Instance" section.
+3. Click on the "Access URL" to open the connect dashboard.
+4. Click on the "Flows" option in the Routing section of the left sidebar.
+5. Click on the "LCA EXAMPLE FLOW" to open the contact flow and start editing it.
+   1. Add the blocks for the information of attributes
+    ![blocks after analytics](./Assets/Contact-flow-imgs/blocks_after_analytics.png)
+    - Add user call inputs 
+   2. Before Check Staffing block add the following blocks:
+    ![blocks before check staffing](./Assets/Contact-flow-imgs/all_blocks_after_customer_input.png)
+    - Add new blocks for language selection
+   3. After the Set Working Queue block add the following blocks:
+    ![different flows addition](./Assets/Contact-flow-imgs/flows_addition.png)
+    - Add blocks for different flows for "set Whisper Flow" and "set Hold Flow" and select the flows present as per the MLCC blog contact flow. The flows that are present the we need to select are these respectively: 
+    1. mlccaagentwhisperflow - Multi Lingual Contact Center Agent Whisper Flow
+    2. mlcccustomerholdflow - Multi Lingual Contact Center Customer Hold Flow
+    3. mlccagentholdflow - Multi Lingual Contact Center 
+
+    - ![All flows in order](./Assets/Contact-flow-imgs/all_flows_in_order.png)
+  
+  - Complete contact flow for reference image and below in note theres is a reference json file:
+  ![complete contact flow](./Assets/Contact-flow-imgs/Complete_connect_flow.png)
+
+  NOTE: The contact flow is saved as a JSON file in the Assets/Contact-flow-file-reference/LCA-MLCC-v1.json file. This can be used to import the contact flow and use as a reference but this does not have correct ARN values for the blocks so it cannot be used to deploy the contact flow, so need to create the contact flow from scratch.
+
+6. Publish the contact flow.
+
+
+### For running locally:
+-Follow the README.md. file in the lca-ai-stack/source/ui/README.md. file to create .env file and run the frontend locally.
+
+- After that, we need to create .env.local file in the lca-ai-stack/source/ui/ folder and follow the instructions as per the env.local.example file.
+
+- Add the RES API url in the AgentResponseBox.jsx file in the lca-ai-stack/source/ui/src/components/call-panel/AgentResponseBox.jsx file.
+
+Note: The env.local.example and env.example files are present in the lca-ai-stack/source/ui/ folder that can be used for reference to create these files. In the env.example file it is mentioned to create certificates to run the frontend locally.
+
+- After that follow these commands to install the dependencies and run the frontend locally:
+
+```
+npm install
+npm install -S amazon-connect-streams aws-sdk regenerator-runtime
+npm start
+```
+
+## Deploying on AWS:-
+AWS Amplify provides a fully managed service for deploying and hosting your React applications. Follow these steps to deploy your application:
+
+#### Prerequisites
+- AWS Account
+- GitHub, GitLab, BitBucket, or AWS CodeCommit repository with your code
+- Administrator access to your AWS account
+
+#### Step 1: Set up your repository
+Ensure your code is pushed to a Git repository (GitHub, GitLab, BitBucket, or AWS CodeCommit).
+
+#### Step 2: Create a new Amplify app
+1. Sign in to the AWS Management Console and navigate to AWS Amplify
+2. Click **Create app**
+3. Select **Host web app**
+4. Choose your Git provider and connect to your repository
+5. Authorize AWS Amplify to access your repository
+6. Select the repository and branch you want to deploy
+
+#### Step 3: Add environment variables
+In the build settings, add the environment variables from your .env files as instructed in the above section for running locally.
+
+#### Step 4: Configure CORS and Allowed origins
+After deployment, you need to update your CORS settings and Amazon Connect approved origins:
+
+1. Add your Amplify app domain (e.g., https://main.XXXXXXXXXX.amplifyapp.com) to Amazon Connect approved origins
+2. Update API Gateway CORS settings to include your Amplify app domain
+3. Update Lambda function CORS headers to include your Amplify app domain
+
+# User Guide:-
+Users can Log-in to the application in a new window that opens up using their Amazon Connect credentials. When call is received on the number assigned in the Amazon Connect, the call will be displayed on the application.
+
+- **Real Time Transcription**: As the call starts, it is transcribed in real time in the preferred language to the agent after clicking on the call details page.
+- **Real Time Text Translation**: The agent can type in their preferred language and click on the "Send" button in the Agent Response Box. The text will be translated to the language of the customer. The translated text is then converted to speech using Amazon Polly and played to the customer.
+- **Sentiment Analysis**: The sentiment of the customer is analyzed and shown in the transcript section with emojis.
+
+
+
+# Credits:-
+
+Full-Stack Developer: 
+    [Loveneet Singh](https://www.linkedin.com/in/loveneet-singh-6bb2851ba/)
+
+UI/UX Designer, Front-end Developer:
+    [Lahari Shakthi Arun](https://www.linkedin.com/in/shakthiarun22/)
+
+UI/UX Designer:
+    [Saran Nithissh Ramesh](https://www.linkedin.com/in/sarannithisshr/)
+
+
+
+
 # Amazon Transcribe Live Call Analytics (LCA) with Agent Assist Sample Solution
 
 _Companion AWS blog post: [Live call analytics and agent assist for your contact center with Amazon language AI services](http://www.amazon.com/live-call-analytics)_

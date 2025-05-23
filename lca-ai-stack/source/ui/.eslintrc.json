@@ -22,24 +22,27 @@
         "eslint-plugin-jest"
     ],
     "rules": {
-        
         "linebreak-style": ["error", "unix"],
         "react/jsx-filename-extension": [
             "warn",
             {
-                "extensions": [".js", ".jsx"]
+            "extensions": [".js", ".jsx"]
             }
         ],
         "prettier/prettier": [
             "error",
             {
-                "printWidth": 100,
-                "singleQuote": true,
-                "trailingComma": "all"
+            "printWidth": 100,
+            "singleQuote": true,
+            "trailingComma": "all"
             }
         ],
         "object-curly-newline": ["error", { "consistent": true }],
         "react/jsx-wrap-multilines": ["off", { "prop": "parens-new-line" }],
-        "react/function-component-definition": ["error", { "namedComponents": "arrow-function" }]
+        "react/function-component-definition": ["error", { "namedComponents": "arrow-function" }],
+        "no-unused-vars": "off",
+        "camelcase": "off",
+        "no-shadow": "off",
+        "react/require-default-props": "off"
     }
 }
