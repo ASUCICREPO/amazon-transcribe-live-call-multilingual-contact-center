@@ -7,7 +7,7 @@ This is an add on function for the Amazon Transcribe Live Call Analytics (LCA) s
 This solution provides near real-time translation chat support through Amazon Connect, Amazon Transcribe, and serverless code through AWS Lambda. Translations that would take hours to complete manually are performed in moments and read back, in life-like speech, and in a member’s chosen language through Amazon Polly. This solution is designed to be a cost-effective, scalable, and secure solution for organizations that need to provide multilingual support to their customers.
 
 
-![Demo Video](./Assets/Demo-video/demo_video.mp4)
+![Demo Video](./Assets/demo-video/demo-mlcc-v2.gif)
 
 
 ## Backend :
