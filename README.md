@@ -7,6 +7,8 @@ This is an add on function for the Amazon Transcribe Live Call Analytics (LCA) s
 This solution provides near real-time translation chat support through Amazon Connect, Amazon Transcribe, and serverless code through AWS Lambda. Translations that would take hours to complete manually are performed in moments and read back, in life-like speech, and in a member’s chosen language through Amazon Polly. This solution is designed to be a cost-effective, scalable, and secure solution for organizations that need to provide multilingual support to their customers.
 
 
+![Demo Video](./Assets/Demo-video/demo_video.mp4)
+
 
 ## Backend :
 -> The LCA stack needs to be deployed first using the documentation provided below in the "Amazon Transcribe Live Call Analytics (LCA) with Agent Assist Sample Solution" section. 
@@ -21,7 +23,7 @@ This solution provides near real-time translation chat support through Amazon Co
 
 -> we need to edit the lambda function for adding realtime graphQl updates to the call details page. The code for lambda function is present in the Assets/Lambda-mlcc-edited/ mlcc-Transcribe-Polly.py file.
     - for graphQl schema we need to edit it by going to appsync console and then going to the schema section of graphQl API and then editing the schema by referencing the file present in the Assets/schema-graph-ql/schema.graphql file.
-    - Lambda layer with gql is needed to be connected to this lambda function. The layer can be created using aws cdk is present in the Backend-layer/CIC-multi-lambda-v5 folder.
+    - Lambda layer with gql is needed to be connected to this lambda function. The layer can be created using aws cdk is present in the Backend-layer/CIC-multi-lambda-v5 folder (refer to the README.md file in the folder for more details).
 
 
 ### New Connect Flow implementation:
@@ -115,11 +117,9 @@ Users can Log-in to the application in a new window that opens up using their Am
 Full-Stack Developer: 
     [Loveneet Singh](https://www.linkedin.com/in/loveneet-singh-6bb2851ba/)
 
-UI/UX Designer, Front-end Developer:
+UI/UX Designer:
     [Lahari Shakthi Arun](https://www.linkedin.com/in/shakthiarun22/)
 
-UI/UX Designer:
-    [Saran Nithissh Ramesh](https://www.linkedin.com/in/sarannithisshr/)
 
 
 
